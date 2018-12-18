@@ -46,10 +46,10 @@ try:
 except NameError:
     pass  # Python < 2.2 doesn't have 'property'.
 
-try:
-    import builtins as __builtin__
-except ImportError:
-    import __builtin__
+#try:
+import builtins as __builtin__
+#except ImportError:
+#import __builtin__
 
 def _swig_setattr_nondynamic(self, class_type, name, value, static=1):
     if (name == "thisown"):
