@@ -122,9 +122,7 @@ while 1:
                   drive(.5, 0)
               else:
                   drive(.5, .5)
-
-
-    else:
+  else:
       print(('Frame %3d:' % (Frame)))
 
       # Display all the blocks in the frame #
@@ -135,5 +133,5 @@ while 1:
       if Blocks[0].m_age > MINIMUM_BLOCK_AGE_TO_LOCK:
         Locked_Block_Index = Blocks[0].m_index;
         Locked_On_Block    = True
-  else:
-    Reset ()
+      else:
+        Reset ()
