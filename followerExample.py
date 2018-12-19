@@ -103,25 +103,25 @@ while 1:
 
     # Block acquisition logic #
     if Locked_On_Block:
-      # Find the block that we are locked to #
-      for Index in range (0, Count):
-        if Blocks[Index].m_index == Locked_Block_Index:
-          print('Frame %3d: Locked' % (Frame))
-          Display_Block (Index, Blocks[Index], Pan_PID_Controller.Command)
+        # Find the block that we are locked to #
+        for Index in range (0, Count):
+          if Blocks[Index].m_index == Locked_Block_Index:
+              print('Frame %3d: Locked' % (Frame))
+              Display_Block (Index, Blocks[Index], Pan_PID_Controller.Command)
 
-          Pan_Offset  = (pixy.get_frame_width () / 2) - Blocks[Index].m_x;
-          Tilt_Offset = Blocks[Index].m_y - (pixy.get_frame_height () / 2)
+              Pan_Offset  = (pixy.get_frame_width () / 2) - Blocks[Index].m_x;
+              Tilt_Offset = Blocks[Index].m_y - (pixy.get_frame_height () / 2)
 
-          Pan_PID_Controller.Update (Pan_Offset)
-          Tilt_PID_Controller.Update (Tilt_Offset)
+              Pan_PID_Controller.Update (Pan_Offset)
+              Tilt_PID_Controller.Update (Tilt_Offset)
 
-          pixy.set_servos(int(round(Pan_PID_Controller.Command)), int(round(Tilt_PID_Controller.Command)))
-          if Pan_PID_Controller.Command >= 0:
-              drive(0, .5)
-          elif Pan_PID_Controller.Command <= 0:
-              drive(.5, 0)
-          else:
-              drive(.5, .5)
+              pixy.set_servos(int(round(Pan_PID_Controller.Command)), int(round(Tilt_PID_Controller.Command)))
+              if Pan_PID_Controller.Command >= 511:
+                  drive(0, .5)
+              elif 480 <= Pan_PID_Controller.Command <= 510:
+                  drive(.5, 0)
+              else:
+                  drive(.5, .5)
 
 
     else:
