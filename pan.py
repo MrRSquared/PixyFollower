@@ -111,7 +111,7 @@ while 1:
           Pan_PID_Controller.Update (Pan_Offset)
           Tilt_PID_Controller.Update (Tilt_Offset)
 
-          pixy.set_servos (Pan_PID_Controller.Command, Tilt_PID_Controller.Command)
+          pixy.set_servos(int(round(Pan_PID_Controller.Command)), int(round(Tilt_PID_Controller.Command)))
     else:
       print(('Frame %3d:' % (Frame)))
 
