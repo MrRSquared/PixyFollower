@@ -3,13 +3,17 @@ import pixy
 from ctypes import *
 from pixy import *
 from rcpy.motor import motor1, motor2
+import sys
 
 # Pixy2 Python SWIG pan/tilt demo #
 
 # Constants #
 PID_MAXIMUM_INTEGRAL      =  2000
 PID_MINIMUM_INTEGRAL      = -2000
-ZUMO_BASE_DEADBAND        =    20
+BASE_DEADBAND             =    20
+Base_Kp                   =     0     # Proportion Gain
+Base_Ki                   =     0     # Integral Gain
+Base_Kd                   =     0     # Derivative Gain
 PIXY_RCS_MAXIMUM_POSITION =  1000
 PIXY_RCS_MINIMUM_POSITION =     0
 PIXY_RCS_CENTER_POSITION  = ((PIXY_RCS_MAXIMUM_POSITION - PIXY_RCS_MINIMUM_POSITION) / 2)
@@ -58,7 +62,7 @@ class PID_Controller:
         self.Integral_Value = PID_MINIMUM_INTEGRAL
 
       # Calculate Proportion, Integral, Derivative (PID) term #
-      PID = (Error * self.Proportion_Gain + ((self.Integral_Value * self.Integral_Gain) >> 4) + (Error - self.Previous_Error) * self.Derivative_Gain) >> 10;
+      PID = (Error * self.Proportion_Gain + ((self.Integral_Value * self.Integral_Gain) / 2 ** 4) + (Error - self.Previous_Error) * self.Derivative_Gain) / 2 ** 10;
 
       if self.Servo:
         # Integrate the PID term because the servo is a position device #
@@ -72,9 +76,9 @@ class PID_Controller:
       else:
         # Handle Zumo base deadband #
         if PID > 0:
-          PID = PID + ZUMO_BASE_DEADBAND
+          PID = PID + BASE_DEADBAND
         if PID < 0:
-          PID = PID - ZUMO_BASE_DEADBAND
+          PID = PID - BASE_DEADBAND
 
         # Use the PID term directly because the Zumo base is a velocity device #
         self.Command = PID
@@ -86,6 +90,12 @@ print ("Pixy2 Python SWIG Example -- Pan/Tilt Tracking Demo")
 # Initialize pan/tilt controllers #
 Pan_PID_Controller  = PID_Controller (PAN_GAIN, 0, PAN_GAIN, True)
 Tilt_PID_Controller = PID_Controller (TILT_GAIN, 0, TILT_GAIN, True)
+
+# Initialize the drivetrain PID
+
+drivePID = PID_Controller (Base_Kp, Base_Ki, Base_Kd, False)
+objectSize = Block.m_width * Block.m_height
+speed = max(min(.5, (objectSize/256)), -.5)
 
 pixy.init ()
 pixy.change_prog ("color_connected_components");
@@ -116,12 +126,19 @@ while 1:
               Tilt_PID_Controller.Update (Tilt_Offset)
 
               pixy.set_servos(int(round(Pan_PID_Controller.Command)), int(round(Tilt_PID_Controller.Command)))
-              if Pan_PID_Controller.Command >= 511:
+
+              # Now we add the motors
+
+              leftSpeed = speed + drivePID
+              rightSpeed = speed - drivePID
+              motor1.set(leftSpeed)
+              motor2.set(rightSpeed)
+              """ if Pan_PID_Controller.Command >= 511:
                   drive(0, .5)
               elif 480 <= Pan_PID_Controller.Command <= 510:
                   drive(.5, 0)
               else:
-                  drive(.5, .5)
+                  drive(.5, .5)"""
   else:
       print(('Frame %3d:' % (Frame)))
 
